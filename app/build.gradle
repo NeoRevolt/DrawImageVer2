@@ -1,0 +1,106 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'kotlin-parcelize'
+}
+
+android {
+    signingConfigs {
+        release {
+//            storeFile file('consolekey.jks')
+            storeFile file('C:\\Users\\Dartmedia\\AndroidStudioProjects\\Upload-To-Console\\app\\consolekey.jks')
+            storePassword 'zidan12345'
+            keyAlias 'consolekey'
+            keyPassword 'zidan12345'
+        }
+    }
+    namespace 'com.neorevolt.drawimageproject'
+    compileSdk 33
+
+    defaultConfig {
+        applicationId "com.neorevolt.drawimageproject"
+        minSdk 21
+        targetSdk 33
+        versionCode 2
+        versionName "2.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        signingConfig signingConfigs.release
+        configurations.all {
+            resolutionStrategy { force 'androidx.core:core-ktx:1.6.0' }
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            debuggable false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    buildFeatures {
+        viewBinding true
+    }
+//    packagingOptions {
+//        exclude 'DebugProbesKt.bin'
+//    }
+
+    dynamicFeatures = [':draw_image']
+}
+
+dependencies {
+
+    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.legacy:legacy-support-v13:1.0.0'
+
+    implementation 'com.google.android.material:material:1.7.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation('org.mockito:mockito-core:3.8.0')
+    testImplementation 'org.robolectric:robolectric:4.5.1'
+    api "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.7.20"
+
+    androidTestImplementation 'androidx.test.ext:junit:1.1.4'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
+
+    //LIFECYCLE
+    api "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1"
+    api "androidx.lifecycle:lifecycle-livedata-ktx:2.5.1"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1"
+    api "androidx.lifecycle:lifecycle-runtime-ktx:2.5.1"
+    api 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+
+    //UI
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'com.google.android.material:material:1.7.0'
+//    implementation "androidx.fragment:fragment-ktx:1.4.0"
+
+    //REMOTE
+    api 'com.squareup.retrofit2:retrofit:2.9.0'
+    api "com.squareup.retrofit2:converter-gson:2.9.0"
+    api "com.squareup.okhttp3:logging-interceptor:4.9.0"
+    api"com.github.bumptech.glide:glide:4.13.2"
+    api "androidx.paging:paging-runtime-ktx:3.1.1"
+
+    //DATABASE
+    api 'androidx.room:room-ktx:2.5.0-beta02'
+    kapt 'androidx.room:room-compiler:2.5.0-beta02'
+
+    api 'androidx.recyclerview:recyclerview:1.2.0'
+    api "com.google.android.play:core:1.10.3"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.7.20"
+}
