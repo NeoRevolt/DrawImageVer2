@@ -36,6 +36,7 @@ class StickerBSFragment : BottomSheetDialogFragment() {
     private lateinit var mIconViewModel: IconViewModel
     private var mStickerListener: StickerListener? = null
     private var size: Int = 1
+    private var checkedRadio: Int? = null
 
     fun setStickerListener(stickerListener: StickerListener?) {
         mStickerListener = stickerListener
@@ -76,25 +77,31 @@ class StickerBSFragment : BottomSheetDialogFragment() {
         rvEmoji.setHasFixedSize(true)
 
         val sizeGroup = contentView.findViewById<RadioGroup>(R.id.stickerRadioGroup)
-        sizeGroup.clearCheck()
-        size = 1
-        sizeGroup?.setOnCheckedChangeListener { _: RadioGroup?, checkedId: Int ->
+//        size = 1
+        checkedRadio?.let { sizeGroup.check(it) }
+        Log.d("CHECKED", "CHECKED RADIO = $checkedRadio")
+        sizeGroup.setOnCheckedChangeListener { _: RadioGroup?, checkedId: Int ->
             when(checkedId) {
                 R.id.verySmallRadio -> {
                     mStickerListener!!.onSizeChange(50)
                     size = 50
+                    checkedRadio = R.id.verySmallRadio
                 }
                 R.id.smallRadio -> {
                     mStickerListener!!.onSizeChange(100)
                     size = 100
+                    checkedRadio = R.id.smallRadio
                 }
                 R.id.mediumRadio -> {
                     mStickerListener!!.onSizeChange(200)
                     size = 200
+                    checkedRadio = R.id.mediumRadio
                 }
                 else -> {
                     mStickerListener!!.onSizeChange(300)
                     size = 300
+//                    sizeGroup.check(R.id.largeRadio)
+                    checkedRadio = R.id.largeRadio
                 }
             }
         }
@@ -237,7 +244,7 @@ class StickerBSFragment : BottomSheetDialogFragment() {
 
             init {
                 itemView.setOnClickListener {
-                    if (mStickerListener != null && size >= 50) {
+                    if (mStickerListener != null && checkedRadio != null) {
                         Glide.with(requireContext())
                             .asBitmap()
                             .load(iconList[layoutPosition].iconUrl)

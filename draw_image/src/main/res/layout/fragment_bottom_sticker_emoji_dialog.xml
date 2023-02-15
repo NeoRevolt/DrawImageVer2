@@ -42,7 +42,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="5dp"
                 android:buttonTint="@color/white"
-                android:checked="true"
+                android:checked="false"
                 android:text="Very Small"
                 android:textColor="@color/white" />
 
