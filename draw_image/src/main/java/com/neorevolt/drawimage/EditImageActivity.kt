@@ -2,6 +2,7 @@ package com.neorevolt.drawimage
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -54,10 +55,12 @@ import java.lang.Float.max
 import java.lang.Float.min
 import java.util.concurrent.Executors
 import android.view.ScaleGestureDetector
+import android.view.View.OnTouchListener
 import android.widget.RelativeLayout
 import android.widget.SeekBar
 import android.widget.Toast
 import com.google.android.play.core.splitcompat.SplitCompat
+import com.neorevolt.drawimage.utils.ZoomClass
 import com.neorevolt.drawimageproject.MainActivity
 
 /**
@@ -94,6 +97,10 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
     private lateinit var mScaleGestureDetector: ScaleGestureDetector
     private var mScaleFactor = 1.0f
     private var inputSize : Int = 100
+
+    private var xStart = 0.0f
+    private var yStart = 0.0f
+    private var mode: String = "NONE"
 
     @VisibleForTesting
     var mSaveImageUri: Uri? = null
@@ -195,13 +202,43 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
 //
 //        })
 }
-
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        if (event != null) {
+//        if (event != null) {
+//            mScaleGestureDetector.onTouchEvent(event)
+//            showFilter(false)
+//            setVisibility(false)
+//        }
+
+        if (event != null){
             mScaleGestureDetector.onTouchEvent(event)
             showFilter(false)
             setVisibility(false)
+            when (event.action){
+                MotionEvent.ACTION_DOWN -> {
+                    xStart = mPhotoEditorView?.x?.let { event.x.plus(it) }?: 0.toFloat()
+                    yStart = mPhotoEditorView?.y?.let { event.y.plus(it) }?: 0.toFloat()
+//                    xStart = event.x
+//                    yStart = event.y
+                    Log.d("xStart", "NILAI xStart = $xStart")
+                    Log.d("yStart", "NILAI yStart = $yStart")
+                }
+                MotionEvent.ACTION_MOVE -> if (mode == "DRAG") {
+                    val xMove = event.x
+                    val yMove = event.y
+
+                    val distanceX = xMove - xStart
+                    val distanceY = yMove - yStart
+
+                    mPhotoEditorView?.x = (mPhotoEditorView?.x?.plus(distanceX) ?: mPhotoEditorView?.x) as Float / 3.0f
+                    mPhotoEditorView?.y = (mPhotoEditorView?.y?.plus(distanceY) ?: mPhotoEditorView?.y) as Float / 3.0f
+                    Log.d("NEW xStart", "NEW NILAI xStart = $xStart")
+                    Log.d("NEW yStart", "NEW NILAI yStart = $yStart")
+                }
+                MotionEvent.ACTION_POINTER_UP -> mode = "NONE"
+            }
         }
+
+
         return true
     }
 
@@ -211,8 +248,10 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
             mScaleFactor = max(0.1f, min(mScaleFactor, 10.0f))
             mPhotoEditorView?.scaleX = mScaleFactor
             mPhotoEditorView?.scaleY = mScaleFactor
+            mode = "DRAG"
             return true
         }
+
     }
 
     private fun handleIntentImage(source: ImageView?) {
@@ -327,7 +366,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
     }
 
     override fun onTouchSourceImage(event: MotionEvent?) {
-        Log.d(TAG, "onTouchView() called with: event = [$event]")
+//        Log.d(TAG, "onTouchView() called with: event = [$event]")
     }
 
     @SuppressLint("NonConstantResourceId", "MissingPermission")
