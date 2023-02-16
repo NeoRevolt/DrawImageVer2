@@ -214,11 +214,11 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
             showFilter(false)
             setVisibility(false)
             when (event.action){
-                MotionEvent.ACTION_DOWN -> {
-                    xStart = mPhotoEditorView?.x?.let { event.x.plus(it) }?: 0.toFloat()
-                    yStart = mPhotoEditorView?.y?.let { event.y.plus(it) }?: 0.toFloat()
-//                    xStart = event.x
-//                    yStart = event.y
+                MotionEvent.ACTION_DOWN -> if (mode == "NONE"){
+//                    xStart = mPhotoEditorView?.x?.let { event.x.plus(it) }?: 0.toFloat()
+//                    yStart = mPhotoEditorView?.y?.let { event.y.plus(it) }?: 0.toFloat()
+                    xStart = event.x
+                    yStart = event.y
                     Log.d("Kordinat Start", "X = $xStart, Y = $yStart")
                 }
                 MotionEvent.ACTION_MOVE -> if (mode == "DRAG") {
@@ -228,8 +228,8 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
                     val distanceX = xMove - xStart
                     val distanceY = yMove - yStart
 
-                    mPhotoEditorView?.x = (mPhotoEditorView?.x?.plus(distanceX) ?: mPhotoEditorView?.x) as Float / 3.0f
-                    mPhotoEditorView?.y = (mPhotoEditorView?.y?.plus(distanceY) ?: mPhotoEditorView?.y) as Float / 3.0f
+                    mPhotoEditorView?.x = (mPhotoEditorView?.x?.plus(distanceX) ?: mPhotoEditorView?.x) as Float / 2.0f
+                    mPhotoEditorView?.y = (mPhotoEditorView?.y?.plus(distanceY) ?: mPhotoEditorView?.y) as Float / 2.0f
                     Log.d("NEW Start", "X = $xStart, Y = $yStart")
                 }
                 MotionEvent.ACTION_POINTER_UP -> mode = "NONE"
@@ -244,7 +244,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
     private inner class ScaleListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
         override fun onScale(detector: ScaleGestureDetector): Boolean {
             mScaleFactor *= detector.scaleFactor
-            mScaleFactor = max(0.1f, min(mScaleFactor, 10.0f))
+            mScaleFactor = max(0.1f, min(mScaleFactor, 2.0f))
             mPhotoEditorView?.scaleX = mScaleFactor
             mPhotoEditorView?.scaleY = mScaleFactor
             mode = "DRAG"
