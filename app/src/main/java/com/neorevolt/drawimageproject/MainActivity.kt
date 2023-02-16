@@ -149,7 +149,8 @@ class MainActivity : AppCompatActivity() {
                     .also {
                         // Send Image URL to DFM
                         val photoUrl =
-                            "https://w0.peakpx.com/wallpaper/837/383/HD-wallpaper-ocean-android-beach-blue-ocean-sea-water.jpg"
+                            "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Sample_Floorplan.jpg/640px-Sample_Floorplan.jpg"
+//                            "https://w0.peakpx.com/wallpaper/837/383/HD-wallpaper-ocean-android-beach-blue-ocean-sea-water.jpg"
 //                            "https://w0.peakpx.com/wallpaper/205/460/HD-wallpaper-sea-beach-beautiful-scene-clouds-deep-sea-natural-graphy-nature-beauty-graphy-lover-portrait.jpg"
                         it.putExtra("extra_req", "remote")
                         it.putExtra("extra_photo", photoUrl)

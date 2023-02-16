@@ -61,7 +61,7 @@ class EditingToolsAdapter(private val mOnItemSelected: OnItemSelected) :
         mToolList.add(ToolModel("Brush", R.drawable.ic_brush, ToolType.BRUSH))
         mToolList.add(ToolModel("Eraser", R.drawable.ic_eraser, ToolType.ERASER))
         mToolList.add(ToolModel("Text", R.drawable.ic_text, ToolType.TEXT))
-        mToolList.add(ToolModel("Adjust", R.drawable.ic_adjust, ToolType.ADJUST))
+//        mToolList.add(ToolModel("Adjust", R.drawable.ic_adjust, ToolType.ADJUST))
 //        mToolList.add(ToolModel("Emoji", R.drawable.ic_insert_emoticon, ToolType.EMOJI))
         mToolList.add(ToolModel("Pest", R.drawable.ic_mouse, ToolType.STICKER))
     }

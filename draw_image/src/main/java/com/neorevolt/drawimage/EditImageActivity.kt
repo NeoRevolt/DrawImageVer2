@@ -219,8 +219,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
                     yStart = mPhotoEditorView?.y?.let { event.y.plus(it) }?: 0.toFloat()
 //                    xStart = event.x
 //                    yStart = event.y
-                    Log.d("xStart", "NILAI xStart = $xStart")
-                    Log.d("yStart", "NILAI yStart = $yStart")
+                    Log.d("Kordinat Start", "X = $xStart, Y = $yStart")
                 }
                 MotionEvent.ACTION_MOVE -> if (mode == "DRAG") {
                     val xMove = event.x
@@ -231,11 +230,11 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
 
                     mPhotoEditorView?.x = (mPhotoEditorView?.x?.plus(distanceX) ?: mPhotoEditorView?.x) as Float / 3.0f
                     mPhotoEditorView?.y = (mPhotoEditorView?.y?.plus(distanceY) ?: mPhotoEditorView?.y) as Float / 3.0f
-                    Log.d("NEW xStart", "NEW NILAI xStart = $xStart")
-                    Log.d("NEW yStart", "NEW NILAI yStart = $yStart")
+                    Log.d("NEW Start", "X = $xStart, Y = $yStart")
                 }
                 MotionEvent.ACTION_POINTER_UP -> mode = "NONE"
             }
+            mode = "NONE"
         }
 
 
