@@ -107,6 +107,8 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
     private var oriScaleY = 0.0f
     private var oriX = 0.0f
     private var oriY = 0.0f
+    private var prevScaleX = 0.0f
+    private var prevScaleY = 0.0f
     private var mode: String = "NONE"
 
     @VisibleForTesting
