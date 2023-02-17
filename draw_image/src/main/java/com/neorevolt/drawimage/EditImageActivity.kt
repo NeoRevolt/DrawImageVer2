@@ -205,7 +205,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
 //        }
 
         if (event != null){
-            mScaleGestureDetector.onTouchEvent(event)
+            mScaleGestureDetector?.onTouchEvent(event)
             mGestureDetector?.onTouchEvent(event)
             showFilter(false)
             setVisibility(false)
