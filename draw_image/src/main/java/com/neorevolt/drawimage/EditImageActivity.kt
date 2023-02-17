@@ -15,6 +15,7 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
 import android.util.Log
+import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AnticipateOvershootInterpolator
@@ -62,6 +63,7 @@ import android.widget.Toast
 import com.google.android.play.core.splitcompat.SplitCompat
 import com.neorevolt.drawimage.utils.ZoomClass
 import com.neorevolt.drawimageproject.MainActivity
+import kotlin.math.log
 
 /**
  * Modified by NeoRevolt on 3/1/2022.
@@ -69,7 +71,7 @@ import com.neorevolt.drawimageproject.MainActivity
 class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickListener,
     PropertiesBSFragment.Properties, ShapeBSFragment.Properties, EmojiBSFragment.EmojiListener,
     StickerBSFragment.StickerListener,
-    EditingToolsAdapter.OnItemSelected, FilterListener {
+    EditingToolsAdapter.OnItemSelected, FilterListener, GestureDetector.OnDoubleTapListener, GestureDetector.OnGestureListener, OnTouchListener{
 
     var mPhotoEditor: PhotoEditor? = null
     private var mPhotoEditorView: PhotoEditorView? = null
@@ -95,11 +97,16 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
 
     private lateinit var seekBar: SeekBar
     private lateinit var mScaleGestureDetector: ScaleGestureDetector
+    private var mGestureDetector: GestureDetector? = null
     private var mScaleFactor = 1.0f
     private var inputSize : Int = 100
 
     private var xStart = 0.0f
     private var yStart = 0.0f
+    private var oriScaleX = 0.0f
+    private var oriScaleY = 0.0f
+    private var oriX = 0.0f
+    private var oriY = 0.0f
     private var mode: String = "NONE"
 
     @VisibleForTesting
@@ -114,7 +121,9 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
         super.onCreate(savedInstanceState)
         makeFullScreen()
         setContentView(R.layout.activity_edit_image)
-//
+
+        fitToScreen()
+
         progressBar = findViewById(R.id.progress_bar)
         seekBar = findViewById(R.id.sbStickerSize)
 
@@ -140,7 +149,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
         // Get Image URL from Detail Activity
 //        val photoUrl = intent.getStringExtra(EXTRA_PHOTO)
 //        val requestCode = intent.getStringExtra(EXTRA_REQ)
-        val bundle:Bundle? = intent.extras
+        val bundle: Bundle? = intent.extras
         val requestCode: String? = bundle?.getString("extra_req")
         val photoUrl: String? = bundle?.getString("extra_photo")
 
@@ -181,27 +190,13 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
         mPhotoEditorView?.source?.setImageResource(R.drawable.blank_image)
         mSaveFileHelper = FileSaveHelper(this)
         mScaleGestureDetector = ScaleGestureDetector(this, ScaleListener())
+        mGestureDetector = GestureDetector(this, this)
+        if (mPhotoEditorView != null){
+            oriScaleX = mPhotoEditorView?.scaleX!!
+            oriScaleY = mPhotoEditorView?.scaleY!!
+        }
+    }
 
-//        setVisibility(false)
-
-//        setVisibility(true)
-
-//        seekBar.max = 1000
-//        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
-//            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-////                mPhotoEditor?.addImage(desiredImage, progress)
-//                inputSize = progress
-//                Log.d("DATA","Nilai Seek Bar $progress")
-//            }
-//
-//            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-//            }
-//
-//            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-//            }
-//
-//        })
-}
     override fun onTouchEvent(event: MotionEvent?): Boolean {
 //        if (event != null) {
 //            mScaleGestureDetector.onTouchEvent(event)
@@ -211,6 +206,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
 
         if (event != null){
             mScaleGestureDetector.onTouchEvent(event)
+            mGestureDetector?.onTouchEvent(event)
             showFilter(false)
             setVisibility(false)
             when (event.action){
@@ -250,7 +246,68 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
             mode = "DRAG"
             return true
         }
+    }
 
+    override fun onTouch(v: View?, e: MotionEvent?): Boolean {
+        if (e != null) {
+            mGestureDetector?.onTouchEvent(e)
+        }
+        return true
+    }
+
+    override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+        return false
+    }
+
+    override fun onDoubleTap(e: MotionEvent): Boolean {
+        Log.d(TAG,"DOUBLE TAP")
+        fitToScreen()
+        return true
+    }
+
+    private fun fitToScreen() {
+        mPhotoEditorView?.scaleX = oriScaleX
+        mPhotoEditorView?.scaleY = oriScaleY
+        mPhotoEditorView?.x = 0f
+        mPhotoEditorView?.y = -0f
+    }
+
+    override fun onDoubleTapEvent(e: MotionEvent): Boolean {
+        return false
+    }
+
+
+    override fun onDown(e: MotionEvent): Boolean {
+        return false
+    }
+
+    override fun onShowPress(e: MotionEvent) {
+    }
+
+    override fun onSingleTapUp(e: MotionEvent): Boolean {
+        return false
+    }
+
+    override fun onScroll(
+        e1: MotionEvent,
+        e2: MotionEvent,
+        distanceX: Float,
+        distanceY: Float
+    ): Boolean {
+        return false
+    }
+
+    override fun onLongPress(e: MotionEvent) {
+
+    }
+
+    override fun onFling(
+        e1: MotionEvent,
+        e2: MotionEvent,
+        velocityX: Float,
+        velocityY: Float
+    ): Boolean {
+        return false
     }
 
     private fun handleIntentImage(source: ImageView?) {
@@ -386,6 +443,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
         val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         startActivityForResult(cameraIntent, CAMERA_REQUEST)
         Log.d(null,"Get From Camera")
+        fitToScreen()
     }
 
      fun getFromGallery(){
@@ -393,7 +451,9 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
         intent.type = "image/*"
         intent.action = Intent.ACTION_GET_CONTENT
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_REQUEST)
-    }
+         fitToScreen()
+
+     }
 
     fun setCode(reqCode: String){
         this.reqCode = reqCode
