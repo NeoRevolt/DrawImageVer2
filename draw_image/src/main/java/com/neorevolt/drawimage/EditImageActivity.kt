@@ -207,8 +207,9 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
 //        }
 
         if (event != null){
-            mScaleGestureDetector?.onTouchEvent(event)
-            mGestureDetector?.onTouchEvent(event)
+            mScaleGestureDetector.onTouchEvent(event)
+            onTouch(mPhotoEditorView,event)
+//            mGestureDetector?.onTouchEvent(event)
             showFilter(false)
             setVisibility(false)
             when (event.action){
@@ -236,7 +237,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
         }
 
 
-        return true
+        return super.onTouchEvent(event)
     }
 
     private inner class ScaleListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
@@ -250,9 +251,15 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
         }
     }
 
-    override fun onTouch(v: View?, e: MotionEvent?): Boolean {
-        if (e != null) {
-            mGestureDetector?.onTouchEvent(e)
+    override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+        if (event != null) {
+            try {
+                mGestureDetector!!.onTouchEvent(event)
+            } catch (e: Exception) {
+//                Toast.makeText(this,"ERROR", Toast.LENGTH_SHORT).show()
+                //TODO (NeoRevolt): Exception with GestureDetector
+                Log.d(TAG, "Exception : $e")
+            }
         }
         return true
     }
