@@ -78,6 +78,12 @@ class StickerBSFragment : BottomSheetDialogFragment() {
 
         val sizeGroup = contentView.findViewById<RadioGroup>(R.id.stickerRadioGroup)
 //        size = 1
+        if (checkedRadio == null){
+            sizeGroup.check(R.id.verySmallRadio)
+            checkedRadio = R.id.verySmallRadio
+            mStickerListener!!.onSizeChange(50)
+            size = 50
+        }
         checkedRadio?.let { sizeGroup.check(it) }
         Log.d("CHECKED", "CHECKED RADIO = $checkedRadio")
         sizeGroup.setOnCheckedChangeListener { _: RadioGroup?, checkedId: Int ->
