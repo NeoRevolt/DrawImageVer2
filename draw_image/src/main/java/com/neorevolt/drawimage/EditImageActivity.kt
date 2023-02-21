@@ -107,6 +107,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
     private var prevScaleY = 0.0f
     private var mode: String = "NONE"
     private var doubleTapScaleValue = 1f
+    private var doubleTapCount = 0
 
     @VisibleForTesting
     var mSaveImageUri: Uri? = null
@@ -197,11 +198,6 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-//        if (event != null) {
-//            mScaleGestureDetector.onTouchEvent(event)
-//            showFilter(false)
-//            setVisibility(false)
-//        }
 
         if (event != null){
             mScaleGestureDetector.onTouchEvent(event)
@@ -211,8 +207,6 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
             setVisibility(false)
             when (event.action){
                 MotionEvent.ACTION_DOWN -> if (mode == "NONE"){
-//                    xStart = mPhotoEditorView?.x?.let { event.x.plus(it) }?: 0.toFloat()
-//                    yStart = mPhotoEditorView?.y?.let { event.y.plus(it) }?: 0.toFloat()
                     xStart = event.x
                     yStart = event.y
                     Log.d("Kordinat Start", "X = $xStart, Y = $yStart")
@@ -244,7 +238,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
             mPhotoEditorView?.scaleX = mScaleFactor
             mPhotoEditorView?.scaleY = mScaleFactor
             mode = "DRAG"
-            doubleTapScaleValue += 2f
+            doubleTapCount = 3 //MAX
             return true
         }
     }
@@ -273,18 +267,24 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
     }
 
     override fun onDoubleTap(e: MotionEvent): Boolean {
-        Log.d(TAG,"DOUBLE TAP COUNT = $doubleTapScaleValue")
-        if (doubleTapScaleValue <= 2.5f){
-            mPhotoEditorView?.pivotX = e.x
-            mPhotoEditorView?.pivotY = e.y
+
+        Log.d(TAG,"DOUBLE TAP SCALE = $doubleTapScaleValue")
+        Log.d(TAG,"DOUBLE TAP COUNT = $doubleTapCount")
+        if (doubleTapCount < 3){
+            if (doubleTapCount < 1){
+                mPhotoEditorView?.pivotX = e.x
+                mPhotoEditorView?.pivotY = e.y
+            }
             val animScaleX = oriScaleY + doubleTapScaleValue
             val animScaleY = oriScaleY + doubleTapScaleValue
             mPhotoEditorView?.animate()?.scaleX(animScaleX)?.scaleY(animScaleY)
-//            mPhotoEditorView?.animate()?.x(mPhotoEditorView?.pivotX!!)?.y(mPhotoEditorView?.pivotX!!)
-            doubleTapScaleValue += 0.6f
-        }else{
+            doubleTapScaleValue += 0.5f
+            doubleTapCount += 1
+        }
+        else{
             fitToScreen()
             doubleTapScaleValue = 1f
+            doubleTapCount = 0
         }
         return true
     }
