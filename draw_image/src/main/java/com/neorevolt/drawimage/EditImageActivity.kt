@@ -2,7 +2,6 @@ package com.neorevolt.drawimage
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -57,13 +56,10 @@ import java.lang.Float.min
 import java.util.concurrent.Executors
 import android.view.ScaleGestureDetector
 import android.view.View.OnTouchListener
-import android.widget.RelativeLayout
 import android.widget.SeekBar
 import android.widget.Toast
 import com.google.android.play.core.splitcompat.SplitCompat
-import com.neorevolt.drawimage.utils.ZoomClass
 import com.neorevolt.drawimageproject.MainActivity
-import kotlin.math.log
 
 /**
  * Modified by NeoRevolt on 3/1/2022.
@@ -110,7 +106,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
     private var prevScaleX = 0.0f
     private var prevScaleY = 0.0f
     private var mode: String = "NONE"
-    private var doubleTapCount = 1f
+    private var doubleTapScaleValue = 1f
 
     @VisibleForTesting
     var mSaveImageUri: Uri? = null
@@ -248,7 +244,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
             mPhotoEditorView?.scaleX = mScaleFactor
             mPhotoEditorView?.scaleY = mScaleFactor
             mode = "DRAG"
-            doubleTapCount += 2f
+            doubleTapScaleValue += 2f
             return true
         }
     }
@@ -271,7 +267,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
     }
 
     override fun onDoubleTap(e: MotionEvent): Boolean {
-        Log.d(TAG,"DOUBLE TAP COUNT = $doubleTapCount")
+        Log.d(TAG,"DOUBLE TAP COUNT = $doubleTapScaleValue")
 //        if (doubleTapCount <= 2.5f){
 //            mPhotoEditorView?.scaleX = oriScaleX + doubleTapCount
 //            mPhotoEditorView?.scaleY = oriScaleY + doubleTapCount
@@ -282,19 +278,19 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
 //            fitToScreen()
 //            doubleTapCount = 1f
 //        }
-        if (doubleTapCount <= 2.5f){
+        if (doubleTapScaleValue <= 2.5f){
 //            mPhotoEditorView?.scaleX = oriScaleX + doubleTapCount
 //            mPhotoEditorView?.scaleY = oriScaleY + doubleTapCount
             mPhotoEditorView?.pivotX = e.x
             mPhotoEditorView?.pivotY = e.y
-            val animX = oriScaleY + doubleTapCount
-            val animY = oriScaleY + doubleTapCount
+            val animX = oriScaleY + doubleTapScaleValue
+            val animY = oriScaleY + doubleTapScaleValue
             mPhotoEditorView?.animate()?.scaleX(animX)?.scaleY(animY)
 //            mPhotoEditorView?.animate()?.x(mPhotoEditorView?.pivotX!!)?.y(mPhotoEditorView?.pivotX!!)
-            doubleTapCount += 0.6f
+            doubleTapScaleValue += 0.6f
         }else{
             fitToScreen()
-            doubleTapCount = 1f
+            doubleTapScaleValue = 1f
         }
         return true
     }
