@@ -263,29 +263,23 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
     }
 
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-        return false
+        if (doubleTapScaleValue > 1f){
+//            mPhotoEditorView?.pivotX = e.x
+//            mPhotoEditorView?.pivotY = e.y
+//            mPhotoEditorView?.animate()?.translationX(-(e.x/2.0f))?.translationY(-(e.y/2.0f))
+
+        }
+        return true
     }
 
     override fun onDoubleTap(e: MotionEvent): Boolean {
         Log.d(TAG,"DOUBLE TAP COUNT = $doubleTapScaleValue")
-//        if (doubleTapCount <= 2.5f){
-//            mPhotoEditorView?.scaleX = oriScaleX + doubleTapCount
-//            mPhotoEditorView?.scaleY = oriScaleY + doubleTapCount
-//            mPhotoEditorView?.pivotX = e.x
-//            mPhotoEditorView?.pivotY = e.y
-//            doubleTapCount += 0.6f
-//        }else{
-//            fitToScreen()
-//            doubleTapCount = 1f
-//        }
         if (doubleTapScaleValue <= 2.5f){
-//            mPhotoEditorView?.scaleX = oriScaleX + doubleTapCount
-//            mPhotoEditorView?.scaleY = oriScaleY + doubleTapCount
             mPhotoEditorView?.pivotX = e.x
             mPhotoEditorView?.pivotY = e.y
-            val animX = oriScaleY + doubleTapScaleValue
-            val animY = oriScaleY + doubleTapScaleValue
-            mPhotoEditorView?.animate()?.scaleX(animX)?.scaleY(animY)
+            val animScaleX = oriScaleY + doubleTapScaleValue
+            val animScaleY = oriScaleY + doubleTapScaleValue
+            mPhotoEditorView?.animate()?.scaleX(animScaleX)?.scaleY(animScaleY)
 //            mPhotoEditorView?.animate()?.x(mPhotoEditorView?.pivotX!!)?.y(mPhotoEditorView?.pivotX!!)
             doubleTapScaleValue += 0.6f
         }else{
