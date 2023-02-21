@@ -110,6 +110,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
     private var prevScaleX = 0.0f
     private var prevScaleY = 0.0f
     private var mode: String = "NONE"
+    private var doubleTapCount = 1f
 
     @VisibleForTesting
     var mSaveImageUri: Uri? = null
@@ -247,6 +248,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
             mPhotoEditorView?.scaleX = mScaleFactor
             mPhotoEditorView?.scaleY = mScaleFactor
             mode = "DRAG"
+            doubleTapCount += 2f
             return true
         }
     }
@@ -269,16 +271,41 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
     }
 
     override fun onDoubleTap(e: MotionEvent): Boolean {
-        Log.d(TAG,"DOUBLE TAP")
-        fitToScreen()
+        Log.d(TAG,"DOUBLE TAP COUNT = $doubleTapCount")
+//        if (doubleTapCount <= 2.5f){
+//            mPhotoEditorView?.scaleX = oriScaleX + doubleTapCount
+//            mPhotoEditorView?.scaleY = oriScaleY + doubleTapCount
+//            mPhotoEditorView?.pivotX = e.x
+//            mPhotoEditorView?.pivotY = e.y
+//            doubleTapCount += 0.6f
+//        }else{
+//            fitToScreen()
+//            doubleTapCount = 1f
+//        }
+        if (doubleTapCount <= 2.5f){
+//            mPhotoEditorView?.scaleX = oriScaleX + doubleTapCount
+//            mPhotoEditorView?.scaleY = oriScaleY + doubleTapCount
+            mPhotoEditorView?.pivotX = e.x
+            mPhotoEditorView?.pivotY = e.y
+            val animX = oriScaleY + doubleTapCount
+            val animY = oriScaleY + doubleTapCount
+            mPhotoEditorView?.animate()?.scaleX(animX)?.scaleY(animY)
+//            mPhotoEditorView?.animate()?.x(mPhotoEditorView?.pivotX!!)?.y(mPhotoEditorView?.pivotX!!)
+            doubleTapCount += 0.6f
+        }else{
+            fitToScreen()
+            doubleTapCount = 1f
+        }
         return true
     }
 
     private fun fitToScreen() {
-        mPhotoEditorView?.scaleX = oriScaleX
-        mPhotoEditorView?.scaleY = oriScaleY
-        mPhotoEditorView?.x = 0f
-        mPhotoEditorView?.y = -0f
+//        mPhotoEditorView?.scaleX = oriScaleX
+//        mPhotoEditorView?.scaleY = oriScaleY
+//        mPhotoEditorView?.x = 0f
+//        mPhotoEditorView?.y = -0f
+        mPhotoEditorView?.animate()?.x(0f)?.y(0f)
+        mPhotoEditorView?.animate()?.scaleX(oriScaleX)?.scaleY(oriScaleY)
     }
 
     override fun onDoubleTapEvent(e: MotionEvent): Boolean {
