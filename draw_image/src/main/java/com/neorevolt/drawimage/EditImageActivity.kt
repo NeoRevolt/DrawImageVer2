@@ -103,8 +103,8 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
     private var oriScaleY = 0.0f
     private var oriX = 0.0f
     private var oriY = 0.0f
-    private var prevScaleX = 0.0f
-    private var prevScaleY = 0.0f
+    var scaledX = 0.0f
+    var scaledY = 0.0f
     private var mode: String = "NONE"
     private var doubleTapScaleValue = 1f
     private var doubleTapCount = 0
@@ -232,14 +232,32 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
         return super.onTouchEvent(event)
     }
 
-    private inner class ScaleListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+    private inner class ScaleListener : ScaleGestureDetector.SimpleOnScaleGestureListener(), OnTouchListener {
+
+        override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
+            mPhotoEditorView?.x = 0f
+            mPhotoEditorView?.y = -0f
+            return true
+        }
         override fun onScale(detector: ScaleGestureDetector): Boolean {
             mScaleFactor *= detector.scaleFactor
             mScaleFactor = max(0.1f, min(mScaleFactor, 2.0f))
             mPhotoEditorView?.scaleX = mScaleFactor
             mPhotoEditorView?.scaleY = mScaleFactor
-            mode = "DRAG"
+            mode = "NONE2"
             doubleTapCount = 3 //MAX
+            return true
+        }
+
+        override fun onScaleEnd(detector: ScaleGestureDetector) {
+            mode = "NONE2"
+            doubleTapCount = 0 //MAX
+            fitToScreen()
+        }
+
+        override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+            mPhotoEditorView?.x = event?.x!!
+            mPhotoEditorView?.y = event?.y!!
             return true
         }
     }
@@ -278,14 +296,14 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
             }
             val animScaleX = oriScaleY + doubleTapScaleValue
             val animScaleY = oriScaleY + doubleTapScaleValue
+            scaledX = animScaleX
+            scaledY = animScaleY
             mPhotoEditorView?.animate()?.scaleX(animScaleX)?.scaleY(animScaleY)
             doubleTapScaleValue += 0.5f
             doubleTapCount += 1
         }
         else{
             fitToScreen()
-            doubleTapScaleValue = 1f
-            doubleTapCount = 0
         }
         return true
     }
@@ -295,6 +313,8 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
 //        mPhotoEditorView?.scaleY = oriScaleY
 //        mPhotoEditorView?.x = 0f
 //        mPhotoEditorView?.y = -0f
+        doubleTapScaleValue = 1f
+        doubleTapCount = 0
         mPhotoEditorView?.animate()?.x(0f)?.y(0f)
         mPhotoEditorView?.animate()?.scaleX(oriScaleX)?.scaleY(oriScaleY)
     }
@@ -717,6 +737,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
         mPhotoEditor?.addImage(bitmap, size)
         mTxtCurrentTool?.setText(R.string.label_sticker)
         desiredImage = bitmap
+        fitToScreen()
     }
 
     override fun onSizeChange(stickerSize: Int) {
