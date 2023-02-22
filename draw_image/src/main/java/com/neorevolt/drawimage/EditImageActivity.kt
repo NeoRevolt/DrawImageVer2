@@ -196,10 +196,12 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
             oriScaleY = mPhotoEditorView?.scaleY!!
         }
     }
-
+    var x = 0f
+    var y = 0f
     override fun onTouchEvent(event: MotionEvent?): Boolean {
 
         if (event != null){
+
             mScaleGestureDetector.onTouchEvent(event)
             onTouch(mPhotoEditorView,event)
 //            mGestureDetector?.onTouchEvent(event)
@@ -207,19 +209,18 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
             setVisibility(false)
             when (event.action){
                 MotionEvent.ACTION_DOWN -> if (mode == "NONE"){
-                    xStart = event.x
-                    yStart = event.y
+                    x = event.x
+                    y = event.y
                     Log.d("Kordinat Start", "X = $xStart, Y = $yStart")
                 }
-                MotionEvent.ACTION_MOVE -> if (mode == "DRAG") {
-                    val xMove = event.x
-                    val yMove = event.y
+                MotionEvent.ACTION_MOVE -> if (mode == "DRAG" || doubleTapCount >= 1) {
+                    var dx = event.x -x
+                    var dy = event.y -y
 
-                    val distanceX = xMove - xStart
-                    val distanceY = yMove - yStart
-
-                    mPhotoEditorView?.x = (mPhotoEditorView?.x?.plus(distanceX) ?: mPhotoEditorView?.x) as Float / 2.0f
-                    mPhotoEditorView?.y = (mPhotoEditorView?.y?.plus(distanceY) ?: mPhotoEditorView?.y) as Float / 2.0f
+                    mPhotoEditorView?.x = (mPhotoEditorView?.x?.plus(dx) ?: mPhotoEditorView?.x) as Float
+                    mPhotoEditorView?.y = (mPhotoEditorView?.y?.plus(dy) ?: mPhotoEditorView?.y) as Float
+                    x = event.x
+                    y = event.y
                     Log.d("NEW Start", "X = $xStart, Y = $yStart")
                 }
                 MotionEvent.ACTION_POINTER_UP -> mode = "NONE"
