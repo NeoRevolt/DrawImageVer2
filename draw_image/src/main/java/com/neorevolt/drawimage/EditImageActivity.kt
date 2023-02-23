@@ -60,6 +60,7 @@ import android.widget.SeekBar
 import android.widget.Toast
 import com.google.android.play.core.splitcompat.SplitCompat
 import com.neorevolt.drawimageproject.MainActivity
+import kotlin.math.log
 
 /**
  * Modified by NeoRevolt on 3/1/2022.
@@ -105,7 +106,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
     private var oriY = 0.0f
     var scaledX = 0.0f
     var scaledY = 0.0f
-    private var mode: String = "NONE"
+    private var mode: String = ""
     private var doubleTapScaleValue = 1f
     private var doubleTapCount = 0
 
@@ -200,6 +201,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
     var y = 0f
     override fun onTouchEvent(event: MotionEvent?): Boolean {
 
+        Log.d("MODE",mode)
         if (event != null){
 
             mScaleGestureDetector.onTouchEvent(event)
@@ -208,12 +210,16 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
             showFilter(false)
             setVisibility(false)
             when (event.action){
-                MotionEvent.ACTION_DOWN -> if (mode == "NONE"){
+                MotionEvent.ACTION_DOWN ->{
                     x = event.x
                     y = event.y
-                    Log.d("Kordinat Start", "X = $xStart, Y = $yStart")
+                    Log.d("Kordinat Start", "X = $x, Y = $y")
+                    Log.d("MODE",mode)
+
                 }
-                MotionEvent.ACTION_MOVE -> if (mode == "DRAG" || doubleTapCount >= 1) {
+                MotionEvent.ACTION_MOVE -> if (mode == "DRAG" && doubleTapCount >= 1) {
+                    Log.d("MODE",mode)
+
                     var dx = event.x -x
                     var dy = event.y -y
 
@@ -221,11 +227,10 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
                     mPhotoEditorView?.y = (mPhotoEditorView?.y?.plus(dy) ?: mPhotoEditorView?.y) as Float
                     x = event.x
                     y = event.y
-                    Log.d("NEW Start", "X = $xStart, Y = $yStart")
+                    Log.d("NEW Start", "X = $x, Y = $y")
                 }
-                MotionEvent.ACTION_POINTER_UP -> mode = "NONE"
+                MotionEvent.ACTION_POINTER_UP -> mode = ""
             }
-            mode = "NONE"
         }
 
 
@@ -237,6 +242,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
         override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
             mPhotoEditorView?.x = 0f
             mPhotoEditorView?.y = -0f
+            mScaleFactor = 1.0f
             return true
         }
         override fun onScale(detector: ScaleGestureDetector): Boolean {
@@ -244,13 +250,13 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
             mScaleFactor = max(0.1f, min(mScaleFactor, 2.0f))
             mPhotoEditorView?.scaleX = mScaleFactor
             mPhotoEditorView?.scaleY = mScaleFactor
-            mode = "NONE2"
+            mode = "DRAG"
             doubleTapCount = 3 //MAX
             return true
         }
 
         override fun onScaleEnd(detector: ScaleGestureDetector) {
-            mode = "NONE2"
+            mode = ""
             doubleTapCount = 0 //MAX
             fitToScreen()
         }
@@ -289,22 +295,29 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
 
         Log.d(TAG,"DOUBLE TAP SCALE = $doubleTapScaleValue")
         Log.d(TAG,"DOUBLE TAP COUNT = $doubleTapCount")
-        if (doubleTapCount < 3){
-            if (doubleTapCount < 1){
-                mPhotoEditorView?.pivotX = e.x
-                mPhotoEditorView?.pivotY = e.y
+        when (e.action){
+            MotionEvent.ACTION_DOWN -> {
+                if (doubleTapCount < 3){
+                    mode = "DRAG"
+                    if (doubleTapCount < 1){
+                        mPhotoEditorView?.pivotX = e.x
+                        mPhotoEditorView?.pivotY = e.y
+                    }
+                    val animScaleX = oriScaleY + doubleTapScaleValue
+                    val animScaleY = oriScaleY + doubleTapScaleValue
+                    scaledX = animScaleX
+                    scaledY = animScaleY
+                    mPhotoEditorView?.animate()?.scaleX(animScaleX)?.scaleY(animScaleY)
+                    doubleTapScaleValue += 0.5f
+                    doubleTapCount += 1
+                }
+                else{
+                    mode = ""
+                    fitToScreen()
+                }
             }
-            val animScaleX = oriScaleY + doubleTapScaleValue
-            val animScaleY = oriScaleY + doubleTapScaleValue
-            scaledX = animScaleX
-            scaledY = animScaleY
-            mPhotoEditorView?.animate()?.scaleX(animScaleX)?.scaleY(animScaleY)
-            doubleTapScaleValue += 0.5f
-            doubleTapCount += 1
         }
-        else{
-            fitToScreen()
-        }
+
         return true
     }
 
@@ -315,6 +328,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
 //        mPhotoEditorView?.y = -0f
         doubleTapScaleValue = 1f
         doubleTapCount = 0
+        mScaleFactor = 1.0f
         mPhotoEditorView?.animate()?.x(0f)?.y(0f)
         mPhotoEditorView?.animate()?.scaleX(oriScaleX)?.scaleY(oriScaleY)
     }
@@ -445,31 +459,27 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
 
     override fun onStartViewChangeListener(viewType: ViewType?) {
         Log.d(TAG, "onStartViewChangeListener() called with: viewType = [$viewType]")
-
-//        setVisibility(true)
-//
-//        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
-//            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-////                mPhotoEditor?.addImage(desiredImage, progress)
-//                mPhotoEditor?.editSticker(mPhotoEditorView, progress)
-//                Log.d("DATA","Nilai Seek Bar $progress")
-//            }
-//
-//            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-//            }
-//
-//            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-//            }
-//
-//        })
+        mode = ""
     }
 
     override fun onStopViewChangeListener(viewType: ViewType?) {
         Log.d(TAG, "onStopViewChangeListener() called with: viewType = [$viewType]")
+        mode = ""
     }
 
     override fun onTouchSourceImage(event: MotionEvent?) {
 //        Log.d(TAG, "onTouchView() called with: event = [$event]")
+        if (event != null){
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    mode = "DRAG"
+                }
+                else -> {
+                    mode = ""
+//                    doubleTapCount = 3
+                }
+            }
+        }
     }
 
     @SuppressLint("NonConstantResourceId", "MissingPermission")
@@ -725,18 +735,10 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
     }
 
     override fun onStickerClick(bitmap: Bitmap?, size:Int) {
-//        if (inputSize !=0){
-//            mPhotoEditor?.addImage(bitmap, inputSize)
-//            mTxtCurrentTool?.setText(R.string.label_sticker)
-//            Log.d(TAG,"Size : $inputSize")
-//        }else{
-//            setVisibility(true)
-//            mPhotoEditor?.addImage(bitmap)
-//            mTxtCurrentTool?.setText(R.string.label_sticker)
-//        }
         mPhotoEditor?.addImage(bitmap, size)
         mTxtCurrentTool?.setText(R.string.label_sticker)
         desiredImage = bitmap
+        mode = ""
         fitToScreen()
     }
 
