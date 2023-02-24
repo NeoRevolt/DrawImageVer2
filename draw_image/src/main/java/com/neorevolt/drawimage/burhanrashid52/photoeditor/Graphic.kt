@@ -48,8 +48,8 @@ internal abstract class Graphic(
         if (frmBorder != null) {
             frmBorder.setBackgroundResource(R.drawable.rounded_border_tv)
             frmBorder.tag = true
-            frmBorder.minimumHeight = 200
-            frmBorder.minimumWidth = 200
+            frmBorder.minimumHeight = 250
+            frmBorder.minimumWidth = 250
         }
         if (imgClose != null) {
             imgClose.visibility = View.VISIBLE

@@ -60,7 +60,6 @@ import android.widget.SeekBar
 import android.widget.Toast
 import com.google.android.play.core.splitcompat.SplitCompat
 import com.neorevolt.drawimageproject.MainActivity
-import kotlin.math.log
 
 /**
  * Modified by NeoRevolt on 3/1/2022.
@@ -107,7 +106,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
     var scaledX = 0.0f
     var scaledY = 0.0f
     private var mode: String = ""
-    private var doubleTapScaleValue = 1f
+    private var doubleTapScaleValue = 0f
     private var doubleTapCount = 0
 
     @VisibleForTesting
@@ -247,7 +246,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
         }
         override fun onScale(detector: ScaleGestureDetector): Boolean {
             mScaleFactor *= detector.scaleFactor
-            mScaleFactor = max(0.1f, min(mScaleFactor, 2.0f))
+            mScaleFactor = max(0.1f, min(mScaleFactor, 3.0f))
             mPhotoEditorView?.scaleX = mScaleFactor
             mPhotoEditorView?.scaleY = mScaleFactor
             mode = "DRAG"
@@ -298,18 +297,39 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
         when (e.action){
             MotionEvent.ACTION_DOWN -> {
                 if (doubleTapCount < 3){
+
                     mode = "DRAG"
-                    if (doubleTapCount < 1){
-                        mPhotoEditorView?.pivotX = e.x
-                        mPhotoEditorView?.pivotY = e.y
-                    }
+                    doubleTapScaleValue += 1.0f
+
                     val animScaleX = oriScaleY + doubleTapScaleValue
                     val animScaleY = oriScaleY + doubleTapScaleValue
                     scaledX = animScaleX
                     scaledY = animScaleY
                     mPhotoEditorView?.animate()?.scaleX(animScaleX)?.scaleY(animScaleY)
-                    doubleTapScaleValue += 0.5f
+
+                    if(doubleTapCount < 1){
+                        xStart = e.x
+                        yStart = e.y
+                        mPhotoEditorView?.pivotX = xStart
+                        mPhotoEditorView?.pivotY = yStart
+                        Log.d("D","xStart = $xStart - yStart = $yStart")
+                    }
+                    else{
+                        //TODO (NeoRevolt) : Try to animate position
+                        val xDiff = (e.x - xStart) / doubleTapScaleValue
+                        val yDiff = (e.y - yStart) / doubleTapScaleValue
+                        val xCurrent = mPhotoEditorView?.pivotX!! + xDiff
+                        val yCurrent = mPhotoEditorView?.pivotY!! + yDiff
+//                        mPhotoEditorView?.pivotX = (mPhotoEditorView?.pivotX!! + xCurrent)
+//                        mPhotoEditorView?.pivotY = (mPhotoEditorView?.pivotY!! + yCurrent)
+                        mPhotoEditorView?.pivotX = xCurrent
+                        mPhotoEditorView?.pivotY = yCurrent
+                        Log.d("D","xCurrent = ${e.x} - yCurrent = ${e.y}")
+                    }
+
                     doubleTapCount += 1
+
+                    Log.d("D","X Scale = ${mPhotoEditorView?.scaleX} - Y Scale = ${mPhotoEditorView?.scaleY}")
                 }
                 else{
                     mode = ""
