@@ -189,9 +189,11 @@ class DrawingView @JvmOverloads constructor(
     }
 
     // region eraser
-    fun brushEraser() {
-        isDrawingEnabled = true
-        isErasing = true
+    fun brushEraser(enabled : Boolean) {
+        if (enabled){
+            isDrawingEnabled = true
+            isErasing = true
+        }
     }
 
     // endregion

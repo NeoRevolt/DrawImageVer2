@@ -58,6 +58,7 @@ import android.view.ScaleGestureDetector
 import android.view.View.OnTouchListener
 import android.widget.SeekBar
 import android.widget.Toast
+import androidx.transition.Visibility
 import com.google.android.play.core.splitcompat.SplitCompat
 import com.neorevolt.drawimageproject.MainActivity
 
@@ -77,6 +78,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
     private var mEmojiBSFragment: EmojiBSFragment? = null
     private var mStickerBSFragment: StickerBSFragment? = null
     private var mTxtCurrentTool: TextView? = null
+    private var mTxtDone: TextView? = null
     private var mRvTools: RecyclerView? = null
     private var mRvFilters: RecyclerView? = null
     private val mEditingToolsAdapter = EditingToolsAdapter(this)
@@ -202,7 +204,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
 
         Log.d("MODE",mode)
         if (event != null){
-
+            mTxtCurrentTool?.text = ""
             mScaleGestureDetector.onTouchEvent(event)
             onTouch(mPhotoEditorView,event)
 //            mGestureDetector?.onTouchEvent(event)
@@ -314,18 +316,18 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
                         mPhotoEditorView?.pivotY = yStart
                         Log.d("D","xStart = $xStart - yStart = $yStart")
                     }
-                    else{
-                        //TODO (NeoRevolt) : Try to animate position
-                        val xDiff = (e.x - xStart) / doubleTapScaleValue
-                        val yDiff = (e.y - yStart) / doubleTapScaleValue
-                        val xCurrent = mPhotoEditorView?.pivotX!! + xDiff
-                        val yCurrent = mPhotoEditorView?.pivotY!! + yDiff
-//                        mPhotoEditorView?.pivotX = (mPhotoEditorView?.pivotX!! + xCurrent)
-//                        mPhotoEditorView?.pivotY = (mPhotoEditorView?.pivotY!! + yCurrent)
-                        mPhotoEditorView?.pivotX = xCurrent
-                        mPhotoEditorView?.pivotY = yCurrent
-                        Log.d("D","xCurrent = ${e.x} - yCurrent = ${e.y}")
-                    }
+//                    else{
+//                        //TODO (NeoRevolt) : Try to animate position
+//                        val xDiff = (e.x - xStart) / doubleTapScaleValue
+//                        val yDiff = (e.y - yStart) / doubleTapScaleValue
+//                        val xCurrent = mPhotoEditorView?.pivotX!! + xDiff
+//                        val yCurrent = mPhotoEditorView?.pivotY!! + yDiff
+////                        mPhotoEditorView?.pivotX = (mPhotoEditorView?.pivotX!! + xCurrent)
+////                        mPhotoEditorView?.pivotY = (mPhotoEditorView?.pivotY!! + yCurrent)
+//                        mPhotoEditorView?.pivotX = xCurrent
+//                        mPhotoEditorView?.pivotY = yCurrent
+//                        Log.d("D","xCurrent = ${e.x} - yCurrent = ${e.y}")
+//                    }
 
                     doubleTapCount += 1
 
@@ -423,6 +425,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
     private fun initViews() {
         mPhotoEditorView = findViewById(R.id.photoEditorView)
         mTxtCurrentTool = findViewById(R.id.txtCurrentTool)
+        mTxtDone = findViewById(R.id.brush_done_tv)
         mRvTools = findViewById(R.id.rvConstraintTools)
         mRvFilters = findViewById(R.id.rvFilterView)
         mRootView = findViewById(R.id.rootView)
@@ -797,9 +800,11 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
                 mShapeBuilder = ShapeBuilder()
                 mPhotoEditor?.setShape(mShapeBuilder)
                 mTxtCurrentTool?.setText(R.string.label_shape)
+                clearFocusButton(true)
                 showBottomSheetDialogFragment(mShapeBSFragment)
             }
             ToolType.TEXT -> {
+                mTxtDone?.visibility = View.GONE
                 val textEditorDialogFragment = TextEditorDialogFragment.show(this)
                 textEditorDialogFragment.setOnTextEditorListener(object :
                     TextEditorDialogFragment.TextEditorListener {
@@ -813,8 +818,9 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
                 mPhotoEditor?.setBrushDrawingMode(false)
             }
             ToolType.ERASER -> {
-                mPhotoEditor?.brushEraser()
+                mPhotoEditor?.brushEraser(true)
                 mTxtCurrentTool?.setText(R.string.label_eraser_mode)
+                clearFocusButton(true)
             }
             ToolType.ADJUST -> {
                 mTxtCurrentTool?.setText(R.string.label_filter)
@@ -824,13 +830,17 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
             ToolType.EMOJI -> {
                 showBottomSheetDialogFragment(mEmojiBSFragment)
                 mPhotoEditor?.setBrushDrawingMode(false)
+                clearFocusButton(false)
             }
             ToolType.STICKER -> {
                 showBottomSheetDialogFragment(mStickerBSFragment)
                 mPhotoEditor?.setBrushDrawingMode(false)
+                clearFocusButton(false)
             }
             else -> {
                 mPhotoEditor?.setBrushDrawingMode(false)
+                clearFocusButton(false)
+
             }
         }
     }
@@ -883,6 +893,20 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
         } else {
             super.onBackPressed()
         }
+    }
+
+    private fun clearFocusButton(visible: Boolean){
+        if (visible){
+            mTxtDone?.visibility = View.VISIBLE
+            mTxtDone?.setOnClickListener {
+                mPhotoEditor?.setBrushDrawingMode(false)
+                mTxtDone?.visibility = View.GONE
+                mPhotoEditor?.brushEraser(false)
+            }
+        }else{
+            mTxtDone?.visibility = View.GONE
+        }
+
     }
 
     private fun showLoading(state: Boolean) {

@@ -205,8 +205,8 @@ internal class PhotoEditorImpl @SuppressLint("ClickableViewAccessibility") const
     override val eraserSize: Float
         get() = drawingView?.eraserSize ?: 0f
 
-    override fun brushEraser() {
-        drawingView?.brushEraser()
+    override fun brushEraser(enable: Boolean) {
+        drawingView?.brushEraser(enable)
     }
 
     override fun undo(): Boolean {

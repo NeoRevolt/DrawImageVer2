@@ -183,7 +183,7 @@ interface PhotoEditor {
      *
      *
      */
-    fun brushEraser()
+    fun brushEraser(state : Boolean)
 
     /**
      * Undo the last operation perform on the [PhotoEditor]
