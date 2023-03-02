@@ -27,6 +27,7 @@ interface PhotoEditor {
      */
     fun addImage(desiredImage: Bitmap?)
     fun addImage(desiredImage: Bitmap?, inputSize: Int)
+    fun addImageWithPost(desiredImage: Bitmap?, inputSize: Int, xPos: Float, yPos: Float)
     fun setStickerSize(stickerSize: Int)
 
     /**

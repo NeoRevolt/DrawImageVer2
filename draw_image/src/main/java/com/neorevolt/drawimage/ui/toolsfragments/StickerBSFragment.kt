@@ -36,6 +36,8 @@ class StickerBSFragment : BottomSheetDialogFragment() {
     private lateinit var mIconViewModel: IconViewModel
     private var mStickerListener: StickerListener? = null
     private var size: Int = 1
+    var stickerX: Float = 0f
+    var stickerY: Float = 0f
     private var checkedRadio: Int? = null
 
     fun setStickerListener(stickerListener: StickerListener?) {
@@ -44,6 +46,7 @@ class StickerBSFragment : BottomSheetDialogFragment() {
 
     interface StickerListener {
         fun onStickerClick(bitmap: Bitmap?, size: Int)
+        fun onStickerClickWithPost(bitmap: Bitmap?, size: Int, xClick: Float, yClick: Float)
         fun onSizeChange(stickerSize: Int)
     }
 
@@ -259,7 +262,9 @@ class StickerBSFragment : BottomSheetDialogFragment() {
                                     resource: Bitmap,
                                     transition: Transition<in Bitmap?>?
                                 ) {
-                                    mStickerListener!!.onStickerClick(resource, size)
+                                    //mStickerListener!!.onStickerClick(resource, size)
+                                    Log.d("FRAGMENT", "X = $stickerX - Y = $stickerY")
+                                    mStickerListener!!.onStickerClickWithPost(resource, size, stickerX, stickerY)
                                 }
 
                                 override fun onLoadCleared(placeholder: Drawable?) {}

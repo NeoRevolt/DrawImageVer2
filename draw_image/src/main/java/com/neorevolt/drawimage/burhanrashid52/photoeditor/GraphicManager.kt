@@ -1,5 +1,6 @@
 package com.neorevolt.drawimage.burhanrashid52.photoeditor
 
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
@@ -13,6 +14,8 @@ internal class GraphicManager(
     private val mPhotoEditorView: PhotoEditorView,
     private val mViewState: PhotoEditorViewState
 ) {
+    var x: Float? = 0f
+    var y: Float? = 0f
     var onPhotoEditorListener: OnPhotoEditorListener? = null
     fun addView(graphic: Graphic) {
         val view = graphic.rootView
@@ -20,6 +23,27 @@ internal class GraphicManager(
             ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
         )
         params.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE)
+        mPhotoEditorView.addView(view, params)
+        mViewState.addAddedView(view)
+
+        onPhotoEditorListener?.onAddViewListener(
+            graphic.viewType,
+            mViewState.addedViewsCount
+        )
+    }
+
+    fun addViewWithPos(graphic: Graphic, viewX: Float, viewY: Float) {
+        val view = graphic.rootView
+//        view.x += 0f
+//        view.y += 0f
+        x = viewX
+        y = viewY
+        view.translationX = viewX
+        view.translationY = viewY
+        Log.d("GRAPHIC MANAGER", "X = $x, | Y = $y")
+        val params = RelativeLayout.LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
+        )
         mPhotoEditorView.addView(view, params)
         mViewState.addAddedView(view)
 

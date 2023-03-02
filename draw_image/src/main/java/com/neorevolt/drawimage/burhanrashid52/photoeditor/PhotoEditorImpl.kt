@@ -65,6 +65,13 @@ internal class PhotoEditorImpl @SuppressLint("ClickableViewAccessibility") const
         addToEditor(sticker)
     }
 
+    override fun addImageWithPost(desiredImage: Bitmap?, inputSize: Int, xPos: Float, yPos: Float) {
+        val multiTouchListener = getMultiTouchListener(true)
+        val sticker = Sticker(photoEditorView, multiTouchListener, viewState, mGraphicManager)
+        sticker.buildView(desiredImage,inputSize, null)
+        addToEditorWithPos(sticker, xPos, yPos)
+    }
+
     override fun setStickerSize(stickerSize: Int) {
         this.stickerSize = stickerSize
     }
@@ -153,6 +160,13 @@ internal class PhotoEditorImpl @SuppressLint("ClickableViewAccessibility") const
     private fun addToEditor(graphic: Graphic) {
         clearHelperBox()
         mGraphicManager.addView(graphic)
+        // Change the in-focus view
+        viewState.currentSelectedView = graphic.rootView
+    }
+
+    private fun addToEditorWithPos(graphic: Graphic, xVal: Float, yVal: Float) {
+        clearHelperBox()
+        mGraphicManager.addViewWithPos(graphic, xVal, yVal)
         // Change the in-focus view
         viewState.currentSelectedView = graphic.rootView
     }

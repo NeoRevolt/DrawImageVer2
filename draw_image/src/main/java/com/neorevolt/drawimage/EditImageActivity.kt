@@ -97,14 +97,18 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
     private lateinit var mScaleGestureDetector: ScaleGestureDetector
     private var mGestureDetector: GestureDetector? = null
     private var mScaleFactor = 1.0f
-    private var inputSize : Int = 100
+    private var inputSize: Int = 100
 
     private var xStart = 0.0f
     private var yStart = 0.0f
     private var oriScaleX = 0.0f
     private var oriScaleY = 0.0f
-    private var oriX = 0.0f
-    private var oriY = 0.0f
+    private var xSticker = 0.0f
+    private var xStickerStart = 0.0f
+    private var xStickerDiff = 0.0f
+    private var ySticker = 0.0f
+    private var yStickerStart = 0.0f
+    private var yStickerDiff = 0.0f
     var scaledX = 0.0f
     var scaledY = 0.0f
     private var mode: String = ""
@@ -193,42 +197,66 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
         mSaveFileHelper = FileSaveHelper(this)
         mScaleGestureDetector = ScaleGestureDetector(this, ScaleListener())
         mGestureDetector = GestureDetector(this, this)
-        if (mPhotoEditorView != null){
+        if (mPhotoEditorView != null) {
             oriScaleX = mPhotoEditorView?.scaleX!!
             oriScaleY = mPhotoEditorView?.scaleY!!
         }
     }
     var x = 0f
     var y = 0f
+    var xS = 0f
+    var yS = 0f
     override fun onTouchEvent(event: MotionEvent?): Boolean {
 
-        Log.d("MODE",mode)
-        if (event != null){
+//        Log.d("MODE",mode)
+        if (event != null) {
             mTxtCurrentTool?.text = ""
             mScaleGestureDetector.onTouchEvent(event)
-            onTouch(mPhotoEditorView,event)
+            onTouch(mPhotoEditorView, event)
 //            mGestureDetector?.onTouchEvent(event)
             showFilter(false)
             setVisibility(false)
-            when (event.action){
-                MotionEvent.ACTION_DOWN ->{
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
                     x = event.x
                     y = event.y
-                    Log.d("Kordinat Start", "X = $x, Y = $y")
-                    Log.d("MODE",mode)
 
+                    xSticker = event.x - 150f
+                    ySticker = event.y - 150f
+                    xS = xStart
+                    yS = yStart
+
+//                    if (doubleTapCount > 1){
+//                        xStickerDiff = (xStickerStart - event.x) / doubleTapScaleValue
+//                        yStickerDiff = (yStickerStart - event.y) / doubleTapScaleValue
+//                        xSticker.plus(xStickerDiff)
+//                        ySticker.plus(yStickerDiff)
+//                    }
+                    Log.d("ACTION DOWN", "event.x = ${event.x}, event.y = ${event.y} \n" +
+                            "PhotoEditorViewX = ${mPhotoEditorView?.matrix}, PhotoEditorViewY = ${mPhotoEditorView?.matrix}\n" +
+                            "Sticker x= $xSticker, Sticker y = $ySticker")
                 }
                 MotionEvent.ACTION_MOVE -> if (mode == "DRAG" && doubleTapCount >= 1) {
-                    Log.d("MODE",mode)
+//                    Log.d("MODE",mode)
 
-                    var dx = event.x -x
-                    var dy = event.y -y
+                    var dx = event.x - x
+                    var dy = event.y - y
 
                     mPhotoEditorView?.x = (mPhotoEditorView?.x?.plus(dx) ?: mPhotoEditorView?.x) as Float
                     mPhotoEditorView?.y = (mPhotoEditorView?.y?.plus(dy) ?: mPhotoEditorView?.y) as Float
                     x = event.x
                     y = event.y
-                    Log.d("NEW Start", "X = $x, Y = $y")
+
+
+                    if (doubleTapCount > 1){
+                        xStickerDiff = (event.x - xS)
+                        yStickerDiff = (event.y - yS)
+                        xSticker.plus(xStickerDiff)
+                        ySticker.plus(yStickerDiff)
+                    }
+                    Log.d("ACTION MOVE", "event.x = ${event.x}, event.y = ${event.y} \n" +
+                            "PhotoEditorViewX = ${mPhotoEditorView?.x}, PhotoEditorViewY = ${mPhotoEditorView?.y}\n" +
+                            "DX = $dx, DY = $dy")
                 }
                 MotionEvent.ACTION_POINTER_UP -> mode = ""
             }
@@ -249,8 +277,8 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
         override fun onScale(detector: ScaleGestureDetector): Boolean {
             mScaleFactor *= detector.scaleFactor
             mScaleFactor = max(0.1f, min(mScaleFactor, 3.0f))
-            mPhotoEditorView?.scaleX = mScaleFactor
-            mPhotoEditorView?.scaleY = mScaleFactor
+            mPhotoEditorView?.scaleX = scaledX + mScaleFactor
+            mPhotoEditorView?.scaleY = scaledY + mScaleFactor
             mode = "DRAG"
             doubleTapCount = 3 //MAX
             return true
@@ -314,7 +342,10 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
                         yStart = e.y
                         mPhotoEditorView?.pivotX = xStart
                         mPhotoEditorView?.pivotY = yStart
-                        Log.d("D","xStart = $xStart - yStart = $yStart")
+
+//                        xSticker = e.x - 150f
+//                        ySticker = e.y - 150f
+
                     }
 //                    else{
 //                        //TODO (NeoRevolt) : Try to animate position
@@ -331,9 +362,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
 
                     doubleTapCount += 1
 
-                    Log.d("D","X Scale = ${mPhotoEditorView?.scaleX} - Y Scale = ${mPhotoEditorView?.scaleY}")
-                }
-                else{
+                } else {
                     mode = ""
                     fitToScreen()
                 }
@@ -344,13 +373,17 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
     }
 
     private fun fitToScreen() {
-//        mPhotoEditorView?.scaleX = oriScaleX
-//        mPhotoEditorView?.scaleY = oriScaleY
-//        mPhotoEditorView?.x = 0f
-//        mPhotoEditorView?.y = -0f
         doubleTapScaleValue = 1f
         doubleTapCount = 0
         mScaleFactor = 1.0f
+        scaledX = 0.0f
+        scaledY = 0.0f
+        x = 0.0f
+        y = 0.0f
+        xStart = 0.0f
+        yStart = 0.0f
+        mPhotoEditorView?.x = 0.0f
+        mPhotoEditorView?.y = 0.0f
         mPhotoEditorView?.animate()?.x(0f)?.y(0f)
         mPhotoEditorView?.animate()?.scaleX(oriScaleX)?.scaleY(oriScaleY)
     }
@@ -360,7 +393,14 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
     }
 
 
+    //TODO (NEW)
     override fun onDown(e: MotionEvent): Boolean {
+//        if (doubleTapCount > 1){
+//            xSticker = e.x
+//            ySticker = e.y
+//            Log.d("DOUBLE EVENT", "X = $xSticker | Y = $ySticker")
+//        }
+//        return true
         return false
     }
 
@@ -625,9 +665,9 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
         }
     }
 
-    private fun shareImageToBase(imageUri : Uri?){
-        Log.d(null, "INI DI TO SHOW : $imageUri")
-        Intent(this,MainActivity::class.java).also {
+    private fun shareImageToBase(imageUri: Uri?) {
+//        Log.d(null, "INI DI TO SHOW : $imageUri")
+        Intent(this, MainActivity::class.java).also {
 //            it.putExtra(MainActivity.EXTRA_PHOTO, imageUri?.toString())
             it.data = imageUri
             startActivity(it)
@@ -757,12 +797,32 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
         mTxtCurrentTool?.setText(R.string.label_emoji)
     }
 
-    override fun onStickerClick(bitmap: Bitmap?, size:Int) {
+    override fun onStickerClick(bitmap: Bitmap?, size: Int) {
         mPhotoEditor?.addImage(bitmap, size)
         mTxtCurrentTool?.setText(R.string.label_sticker)
         desiredImage = bitmap
         mode = ""
         fitToScreen()
+    }
+
+    override fun onStickerClickWithPost(bitmap: Bitmap?, size: Int, xClick: Float, yClick: Float) {
+        val x = xSticker
+        val y = ySticker
+        Log.d("SESUDAH", "X = $x, - Y = $y")
+        if (x == 0.0f && y == 0.0f) {
+            mPhotoEditor?.addImage(bitmap, size)
+            fitToScreen()
+        }
+        else{
+            mPhotoEditor?.addImageWithPost(bitmap, size, x, y)
+            xSticker = 0f
+            ySticker = 0f
+        }
+        mTxtCurrentTool?.setText(R.string.label_sticker)
+        desiredImage = bitmap
+        mode = ""
+
+//        fitToScreen()
     }
 
     override fun onSizeChange(stickerSize: Int) {
