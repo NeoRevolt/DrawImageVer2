@@ -51,6 +51,12 @@ class ShapeBSFragment : BottomSheetDialogFragment(), SeekBar.OnSeekBarChangeList
                 R.id.rectRadioButton -> {
                     mProperties!!.onShapePicked(ShapeType.RECTANGLE)
                 }
+                R.id.triRadioButton -> {
+                    mProperties!!.onShapePicked(ShapeType.TRIANGLE)
+                }
+                R.id.arcRadioButton -> {
+                    mProperties!!.onShapePicked(ShapeType.ARC)
+                }
                 else -> {
                     mProperties!!.onShapePicked(ShapeType.BRUSH)
                 }

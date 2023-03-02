@@ -149,6 +149,12 @@ class DrawingView @JvmOverloads constructor(
                 ShapeType.LINE -> {
                     shape = LineShape()
                 }
+                ShapeType.TRIANGLE -> {
+                    shape = TriangleShape()
+                }
+                ShapeType.ARC -> {
+                    shape = ArcShape()
+                }
                 else -> {}
             }
         }

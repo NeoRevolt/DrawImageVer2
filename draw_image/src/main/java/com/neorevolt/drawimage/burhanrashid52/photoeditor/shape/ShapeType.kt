@@ -7,5 +7,7 @@ enum class ShapeType {
     BRUSH,
     OVAL,
     RECTANGLE,
-    LINE
+    LINE,
+    TRIANGLE,
+    ARC
 }

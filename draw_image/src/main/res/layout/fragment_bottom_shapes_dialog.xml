@@ -15,6 +15,16 @@
         android:padding="20dp"
         android:background="@drawable/rounded_corner">
 
+
+        <HorizontalScrollView
+            android:id="@+id/shapeRadioScroll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/shapeType"
+            android:orientation="horizontal">
+
         <RadioGroup
             android:id="@+id/shapeRadioGroup"
             android:layout_width="match_parent"
@@ -25,6 +35,8 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/shapeType">
+
+
 
             <RadioButton
                 android:id="@+id/brushRadioButton"
@@ -59,7 +71,26 @@
                 android:textColor="@color/white"
                 android:text="@string/label_rectangle" />
 
+            <RadioButton
+                android:id="@+id/triRadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:buttonTint="@color/white"
+                android:textColor="@color/white"
+                android:text="@string/label_triangle" />
+
+            <RadioButton
+                android:id="@+id/arcRadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:buttonTint="@color/white"
+                android:textColor="@color/white"
+                android:text="@string/label_arc" />
+
         </RadioGroup>
+
+        </HorizontalScrollView>
+
 
         <SeekBar
             android:id="@+id/shapeSize"
@@ -105,7 +136,7 @@
             android:textSize="18sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/shapeRadioGroup" />
+            app:layout_constraintTop_toBottomOf="@id/shapeRadioScroll" />
 
         <TextView
             android:visibility="gone"

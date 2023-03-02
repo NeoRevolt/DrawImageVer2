@@ -17,6 +17,8 @@
     <string name="msg_save_image_to_share">Please save image to share</string>
     <string name="msg_share_image">Share Image</string>
     <string name="done">Done</string>
+    <string name="label_triangle">Triangle</string>
+    <string name="label_arc">Arc</string>
     <string-array name="photo_editor_emoji">
         <!-- Smiles -->
         <item>u+1f604</item>
